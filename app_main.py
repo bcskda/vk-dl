@@ -57,7 +57,7 @@ class MainAppliction(QApplication):
 
     @Core.pyqtSlot(name='on_extract_finish')
     def on_extract_finish(self):
-        print('MainApplication: transmission finished')
+        print('MainApplication: list transmission finished')
         try:
             del self.web_view
         except Exception as e:
@@ -66,6 +66,7 @@ class MainAppliction(QApplication):
             print(json.dumps(self.attachments), file=out)
         for attach in self.attachments:
             self.destination.upload(attach)
+        print('MainApplication: all files saved')
 
 
 def main():
