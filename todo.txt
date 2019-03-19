@@ -1,0 +1,3 @@
+Кнопочки
+typing
+`QPlainTextEdit::setDocument: Document set does not support QPlainTextDocumentLayout`
