@@ -6,6 +6,8 @@ from PyQt5.QtWidgets import QApplication  # , QPlainTextEdit
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 import app_extractor
 import app_auth
+import app_destinations
+import app_config
 
 
 class MainAppliction(QApplication):
@@ -23,6 +25,7 @@ class MainAppliction(QApplication):
         self.web_view = QWebEngineView()
         self.authorizer = app_auth.Authorizer()
         self.extractor = app_extractor.Extractor()
+        self.destination = app_destinations.destinations['local']()
 
         self.authorizer.auth_success.connect(self.on_auth_result)
         self.authorizer.auth_fail.connect(self.on_auth_result)
@@ -30,6 +33,8 @@ class MainAppliction(QApplication):
 
         self.extractor.on_data.connect(self.on_extract_data)
         self.extractor.on_finish.connect(self.on_extract_finish)
+
+        self.destination.auth({'dest_file': app_config.local_filename_templ})
 
         self.attachments = []
 
@@ -43,7 +48,7 @@ class MainAppliction(QApplication):
     @Core.pyqtSlot(list, name='on_extract_data')
     def on_extract_data(self, attachments: list):
         print('MainApplication: received more {}'.format(len(attachments)))
-        self.attachments.append(attachments)
+        self.attachments.extend(attachments)
         # ls = map(json.dumps, ls)
         # self.text_view.show()
         # doc = Gui.QTextDocument(self.text_view)
@@ -53,8 +58,14 @@ class MainAppliction(QApplication):
     @Core.pyqtSlot(name='on_extract_finish')
     def on_extract_finish(self):
         print('MainApplication: transmission finished')
-        with open('im_photos.json', 'w') as out:
+        try:
+            del self.web_view
+        except Exception as e:
+            print('MainActivity: Exception while deleting web_view:', e)
+        with open('dest/im_photos.json', 'w') as out:
             print(json.dumps(self.attachments), file=out)
+        for attach in self.attachments:
+            self.destination.upload(attach)
 
 
 def main():

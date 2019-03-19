@@ -5,10 +5,8 @@ App_id = '6872420'
 Api_version = '5.92'
 
 
-default_peer = '86190915'
-
-
 Auth_redir = {'netloc': 'oauth.vk.com', 'path': '/blank.html'}
+
 
 _auth_params = {'client_id': App_id}
 _auth_params['display'] = 'popup'
@@ -27,8 +25,6 @@ def make_auth_url(scope: List[str]):
 photo_size_priority = ['w', 'z', 'y', 'x', 'm', 's', 'r', 'q', 'p', 'o']
 extract_sources = ['im']
 source_url = {}
-
-
 _dev_exec_params = {'params[v]': Api_version}
 source_url['im'] = 'https://vk.com/dev/execute?' + urlencode(_dev_exec_params)
 
@@ -43,4 +39,5 @@ for source in extract_sources:
     except OSError:
         print(f'Warning: missing injection file for source {source}')
 
-parsers = dict()
+
+local_filename_templ = 'dest/{}_{}'
