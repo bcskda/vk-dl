@@ -1,0 +1,5 @@
+Parent-иерархия виджетов
+Пофиксить краш процессов QtWebEngine
+Кнопочки
+typing
+`QPlainTextEdit::setDocument: Document set does not support QPlainTextDocumentLayout`
