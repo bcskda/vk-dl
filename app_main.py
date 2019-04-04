@@ -23,8 +23,8 @@ class MainAppliction(QApplication):
         print('Command-line:', self.args)
 
         self.web_view = QWebEngineView()
-        self.authorizer = app_auth.Authorizer()
-        self.extractor = app_extractor.Extractor()
+        self.authorizer = app_auth.Authorizer(self.web_view)
+        self.extractor = app_extractor.Extractor(self.web_view)
         self.destination = app_destinations.destinations['local']()
 
         self.authorizer.auth_success.connect(self.on_auth_result)
@@ -57,16 +57,17 @@ class MainAppliction(QApplication):
 
     @Core.pyqtSlot(name='on_extract_finish')
     def on_extract_finish(self):
-        print('MainApplication: list transmission finished')
-        try:
-            del self.web_view
-        except Exception as e:
-            print('MainActivity: Exception while deleting web_view:', e)
+        print('MainApplication: attachment list transmitted')
+        self.web_view.close()
+
         with open('dest/im_photos.json', 'w') as out:
             print(json.dumps(self.attachments), file=out)
-        for attach in self.attachments:
+        for counter, attach in enumerate(self.attachments):
+            print('Saving {} / {}'.format(counter + 1, len(self.attachments)))
             self.destination.upload(attach)
+
         print('MainApplication: all files saved')
+        self.quit()
 
 
 def main():

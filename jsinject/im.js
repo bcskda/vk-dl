@@ -37,7 +37,7 @@ function make_code(peer_id, from_id) {
 }
 
 new QWebChannel(qt.webChannelTransport, function(channel) {
-    channel.objects.app_receiver.get_next_series.connect(function() {
+    const on_next_series = function() {
         const args = JSON.parse(arguments[0]);
         if (args.debug) {
             channel.objects.app_receiver.log("Arguments object", arguments[0]);
@@ -56,8 +56,13 @@ new QWebChannel(qt.webChannelTransport, function(channel) {
             var dev_result = document.getElementById("dev_result");
             channel.objects.app_receiver.on_dev_result(dev_result.innerHTML);
         }, 1000);
-    });
-    
+    };
+    const on_finish = function() {
+        channel.objects.app_receiver.get_next_series.disconnect(on_next_series);
+        channel.objects.app_receiver.on_finish.disconnect(on_finish);
+    };
+    channel.objects.app_receiver.get_next_series.connect(on_next_series);
+    channel.objects.app_receiver.on_finish.connect(on_finish);
     const textarea_code = document.getElementById("dev_const_code");
     if (textarea_code)
         channel.objects.app_receiver.init("Injection ready: `im`");

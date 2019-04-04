@@ -13,7 +13,7 @@ class Receiver(Core.QObject):
 
     get_next_series = Core.pyqtSignal(str, name='get_next_series')
     on_data = Core.pyqtSignal(list)
-    on_finish = Core.pyqtSignal()
+    on_finish = Core.pyqtSignal(name='on_finish')
 
     def __init__(self, parent: Core.QObject = None):
         super(Receiver, self).__init__(parent)
@@ -32,7 +32,6 @@ class Receiver(Core.QObject):
     def on_init_exchange(self, mesg: str):
         """Called by injected js when ready to communicate"""
         print(f'Receiver: Initiate from injection: {mesg}')
-        print('Parser: {}; {}'.format(self.parser.__class__, dir(self.parser)))
         initial_args = self.parser.initial_state()['args']
         self.get_next_series.emit(json.dumps(initial_args))
 
@@ -46,6 +45,7 @@ class Receiver(Core.QObject):
             self.get_next_series.emit(json.dumps(state['args']))
         else:
             print('Receiver: Finished')
+            self.get_next_series.disconnect
             self.on_finish.emit()
 
     @Core.pyqtSlot(str, str, name='log')
