@@ -27,3 +27,4 @@ def register_destination(name, cls):
 
 
 from . import local
+from . import telegram

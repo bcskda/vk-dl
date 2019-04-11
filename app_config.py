@@ -4,6 +4,11 @@ from urllib.parse import urlencode
 App_id = '6872420'
 Api_version = '5.92'
 
+App_tg_id = '743061'
+App_tg_hash = 'c89eda99f561c24a90fb06ad8ebf0e59'
+App_tg_name = 'YAVKDL'
+App_tg_channel_title = App_tg_name + ' - {}'
+App_tg_channel_desc = App_tg_name + '-saved media goes here'
 
 Auth_redir = {'netloc': 'oauth.vk.com', 'path': '/blank.html'}
 

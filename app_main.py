@@ -1,5 +1,7 @@
 import sys
 import json
+import socks
+import logging
 # import PyQt5.QtGui as Gui
 import PyQt5.QtCore as Core
 from PyQt5.QtWidgets import QApplication  # , QPlainTextEdit
@@ -7,7 +9,6 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 import app_extractor
 import app_auth
 import app_destinations
-import app_config
 
 
 class MainAppliction(QApplication):
@@ -20,12 +21,12 @@ class MainAppliction(QApplication):
         params = list(params)
         print('Params:', params)
         self.args['params'] = dict(params)
-        print('Command-line:', self.args)
+        print('Command-line: ', self.args)
 
         self.web_view = QWebEngineView()
         self.authorizer = app_auth.Authorizer(self.web_view)
         self.extractor = app_extractor.Extractor(self.web_view)
-        self.destination = app_destinations.destinations['local']()
+        self.destination = app_destinations.destinations['telegram']()
 
         self.authorizer.auth_success.connect(self.on_auth_result)
         self.authorizer.auth_fail.connect(self.on_auth_result)
@@ -34,13 +35,18 @@ class MainAppliction(QApplication):
         self.extractor.on_data.connect(self.on_extract_data)
         self.extractor.on_finish.connect(self.on_extract_finish)
 
-        self.destination.auth({'dest_file': app_config.local_filename_templ})
+        # self.destination.auth({'dest_file': app_config.local_filename_templ})
+        self.destination.auth({
+            'phone_number': lambda: input('Enter telegram phone number: '),
+            'code': lambda: input('Enter telegram auth code: '),
+            'password': lambda: input('Enter telegram 2fa password: '),
+            'proxy': (socks.SOCKS5, 'localhost', 9150)
+        })
 
         self.attachments = []
 
     @Core.pyqtSlot(dict, name='on_auth_result')
     def on_auth_result(self, result: dict):
-        print(f'Received auth result: {result}')
         self.extractor.set_source(self.args['source'])
         self.extractor.set_parser_params(**self.args['params'])
         self.extractor.execute_in_view(self.web_view)
@@ -71,6 +77,7 @@ class MainAppliction(QApplication):
 
 
 def main():
+    logging.basicConfig(level=logging.ERROR)
     app = MainAppliction(sys.argv)
     app.authorizer.auth_in_view(app.web_view, 'friends')
     sys.exit(app.exec())
